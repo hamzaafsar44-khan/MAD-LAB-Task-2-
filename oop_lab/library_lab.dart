@@ -23,9 +23,25 @@ int yearOf(int i) => 1995 + 2 * i + t;
 final int feePerDay = 5 + t;
 final int daysLate = 3 + (t + u) % 6;
 
-// Step 5: Renewal limit and attempts
+// Step 5: Renewal settings
 final int renewLimit = 2 + u % 3;
 final int renewAttempts = 1 + seed % 5;
+
+// Step 6.1: Enhanced enum
+enum MemberType {
+  student(3, 50),
+  faculty(10, 20),
+  guest(1, 0);
+
+  final int maxLoans;
+  final int discountPercent;
+
+  const MemberType(this.maxLoans, this.discountPercent);
+
+  int applyDiscount(int fee) {
+    return fee - (fee * discountPercent ~/ 100);
+  }
+}
 
 // Step 3: Abstract class
 abstract class LibraryItem {
@@ -46,23 +62,21 @@ abstract class Borrowable {
   void giveBack();
 }
 
-// Step 5.1: Renewable mixin
+// Step 5: Renewable mixin
 mixin Renewable {
   int renewals = 0;
 
   bool renew(int limit) {
-    // Return false if the limit has already been reached.
     if (renewals >= limit) {
       return false;
     }
 
-    // Otherwise, count one successful renewal.
     renewals++;
     return true;
   }
 }
 
-// Step 5.2: Book uses Renewable and implements Borrowable
+// Book implements Borrowable and uses Renewable
 class Book extends LibraryItem with Renewable implements Borrowable {
   final int pages;
   bool _out = false;
@@ -102,7 +116,7 @@ class Magazine extends LibraryItem {
   int lateFee(int days) => days * (feePerDay ~/ 2);
 }
 
-// Step 5.2: Dvd also uses Renewable
+// Dvd uses Renewable
 class Dvd extends LibraryItem with Renewable {
   final int minutes;
 
@@ -193,11 +207,9 @@ void step4() {
     );
   }
 
-  // Think: implements requires Book to implement every contract member.
-  // A mixin shares ready-made behavior without putting it in the parent.
+
 }
 
-// Step 5.3: Test renewals
 void step5() {
   Book book = mainBook();
   int ok = 0;
@@ -213,18 +225,28 @@ void step5() {
     '(limit $renewLimit)',
   );
 
+  print('Step 5: renew once more? ${book.renew(renewLimit)}');
+
+  print('Step 5: dvd can renew too? ${mainDvd().renew(1)}');
+
+  
+}
+
+// Step 6.2: Test enhanced enum
+void step6() {
+  MemberType type = MemberType.values[seed % 3];
+
+  Book book = mainBook();
+  int fee = book.lateFee(daysLate);
+
+  print('Step 6: member type = ${type.name} (index ${type.index})');
+  print('Step 6: max loans = ${type.maxLoans}');
   print(
-    'Step 5: renew once more? '
-    '${book.renew(renewLimit)}',
+    'Step 6: book fee $fee -> '
+    '${type.applyDiscount(fee)} after discount',
   );
 
-  print(
-    'Step 5: dvd can renew too? '
-    '${mainDvd().renew(1)}',
-  );
-
-  // Think: Book and Dvd share renewal behavior, but Magazine does not
-  // need it. Renewable is a better fit than adding renew to LibraryItem.
+ 
 }
 
 void main() {
@@ -233,4 +255,5 @@ void main() {
   step3();
   step4();
   step5();
+  step6();
 }
