@@ -23,7 +23,11 @@ int yearOf(int i) => 1995 + 2 * i + t;
 final int feePerDay = 5 + t;
 final int daysLate = 3 + (t + u) % 6;
 
+// Step 5: Renewal limit and attempts
+final int renewLimit = 2 + u % 3;
+final int renewAttempts = 1 + seed % 5;
 
+// Step 3: Abstract class
 abstract class LibraryItem {
   final String title;
   final int year;
@@ -35,15 +39,31 @@ abstract class LibraryItem {
   int lateFee(int days);
 }
 
-// Step 4.1: Borrowable contract
+// Step 4: Borrowable contract
 abstract class Borrowable {
   bool get isAvailable;
   void borrow();
   void giveBack();
 }
 
-// Step 3 and Step 4.2:
-class Book extends LibraryItem implements Borrowable {
+// Step 5.1: Renewable mixin
+mixin Renewable {
+  int renewals = 0;
+
+  bool renew(int limit) {
+    // Return false if the limit has already been reached.
+    if (renewals >= limit) {
+      return false;
+    }
+
+    // Otherwise, count one successful renewal.
+    renewals++;
+    return true;
+  }
+}
+
+// Step 5.2: Book uses Renewable and implements Borrowable
+class Book extends LibraryItem with Renewable implements Borrowable {
   final int pages;
   bool _out = false;
 
@@ -69,7 +89,7 @@ class Book extends LibraryItem implements Borrowable {
   }
 }
 
-
+// Magazine does not use Renewable
 class Magazine extends LibraryItem {
   final int issue;
 
@@ -82,8 +102,8 @@ class Magazine extends LibraryItem {
   int lateFee(int days) => days * (feePerDay ~/ 2);
 }
 
-
-class Dvd extends LibraryItem {
+// Step 5.2: Dvd also uses Renewable
+class Dvd extends LibraryItem with Renewable {
   final int minutes;
 
   Dvd(super.title, super.year, this.minutes);
@@ -149,7 +169,6 @@ void step3() {
   print('Step 3: ${dvd.describe()}');
 }
 
-// Step 4.3:
 void step4() {
   Book book = mainBook();
 
@@ -174,7 +193,38 @@ void step4() {
     );
   }
 
-  
+  // Think: implements requires Book to implement every contract member.
+  // A mixin shares ready-made behavior without putting it in the parent.
+}
+
+// Step 5.3: Test renewals
+void step5() {
+  Book book = mainBook();
+  int ok = 0;
+
+  for (int i = 0; i < renewAttempts; i++) {
+    if (book.renew(renewLimit)) {
+      ok++;
+    }
+  }
+
+  print(
+    'Step 5: renewed $ok of $renewAttempts attempts '
+    '(limit $renewLimit)',
+  );
+
+  print(
+    'Step 5: renew once more? '
+    '${book.renew(renewLimit)}',
+  );
+
+  print(
+    'Step 5: dvd can renew too? '
+    '${mainDvd().renew(1)}',
+  );
+
+  // Think: Book and Dvd share renewal behavior, but Magazine does not
+  // need it. Renewable is a better fit than adding renew to LibraryItem.
 }
 
 void main() {
@@ -182,4 +232,5 @@ void main() {
   step2();
   step3();
   step4();
+  step5();
 }
