@@ -1,4 +1,5 @@
 
+
 final String rollNo = '04072313001';
 
 final int seed = int.parse(rollNo.substring(rollNo.length - 2));
@@ -15,16 +16,18 @@ final List<String> titles = [
   'Algorithms Unlocked',
   'Computer Networks',
   'Database Systems',
-  'Software Testing'
+  'Software Testing',
 ];
 
 int yearOf(int i) => 1995 + 2 * i + t;
 
 final int feePerDay = 5 + t;
 final int daysLate = 3 + (t + u) % 6;
-
-final int renewLimit = 2 + u % 3;
-final int renewAttempts = 1 + seed % 5;
+final int daysBig = 10 + u;
+final int feeCap = 150 + 10 * t;
+final int renewLimit = 1 + t % 3;
+final int renewAttempts = 2 + u;
+final int shelfSize = 3 + u % 4;
 
 // Step 6: Enhanced enum
 enum MemberType {
@@ -42,15 +45,26 @@ enum MemberType {
   }
 }
 
+// Step 2 and Step 9: Abstract class
 abstract class LibraryItem {
   final String title;
   final int year;
 
-  LibraryItem(this.title, this.year);
+  // Step 9: Shared counter
+  static int created = 0;
+
+  LibraryItem(this.title, this.year) {
+    created++;
+  }
 
   String describe() => '$title ($year)';
 
   int lateFee(int days);
+
+  // Step 9: Fee cap helper
+  static int capFee(int fee) {
+    return fee > feeCap ? feeCap : fee;
+  }
 }
 
 // Step 4: Borrowable contract
@@ -74,8 +88,10 @@ mixin Renewable {
   }
 }
 
-// Book implements Borrowable and uses Renewable
-class Book extends LibraryItem with Renewable implements Borrowable {
+// Book
+class Book extends LibraryItem
+    with Renewable
+    implements Borrowable {
   final int pages;
   bool _out = false;
 
@@ -101,7 +117,7 @@ class Book extends LibraryItem with Renewable implements Borrowable {
   }
 }
 
-// Magazine does not use Renewable
+// Magazine
 class Magazine extends LibraryItem {
   final int issue;
 
@@ -114,7 +130,7 @@ class Magazine extends LibraryItem {
   int lateFee(int days) => days * (feePerDay ~/ 2);
 }
 
-// Dvd uses Renewable
+// DVD
 class Dvd extends LibraryItem with Renewable {
   final int minutes;
 
@@ -127,33 +143,28 @@ class Dvd extends LibraryItem with Renewable {
   int lateFee(int days) => days * feePerDay * 2;
 }
 
-// Step 8.1: Fine class with operator overloading
+
 class Fine {
   final int amount;
 
   const Fine(this.amount);
 
-  // Add two fines
   Fine operator +(Fine o) {
     return Fine(amount + o.amount);
   }
 
-  // Compare two fines
   bool operator >(Fine o) {
     return amount > o.amount;
   }
 
-  // Two fines are equal if their amounts are equal
   @override
   bool operator ==(Object other) {
     return other is Fine && other.amount == amount;
   }
 
-  // Equal objects must have the same hashCode
   @override
   int get hashCode => amount.hashCode;
 
-  // Display the fine in the required format
   @override
   String toString() => 'Fine($amount)';
 }
@@ -164,6 +175,7 @@ Book mainBook() {
 
 Magazine mainMagazine() {
   int i = (u + 1) % 10;
+
   return Magazine(
     titles[i],
     yearOf(i),
@@ -173,7 +185,12 @@ Magazine mainMagazine() {
 
 Dvd mainDvd() {
   int i = (u + 2) % 10;
-  return Dvd(titles[i], yearOf(i), 90 + seed % 40);
+
+  return Dvd(
+    titles[i],
+    yearOf(i),
+    90 + seed % 40,
+  );
 }
 
 // Step 7: Extension methods
@@ -183,9 +200,7 @@ extension MoneyText on int {
 
 extension Initials on String {
   String get initials {
-    return split(' ')
-        .map((w) => w[0])
-        .join();
+    return split(' ').map((w) => w[0]).join();
   }
 }
 
@@ -198,12 +213,17 @@ extension ShelfMath on List<LibraryItem> {
   }
 }
 
+// Step 1
 void step1() {
+  print('--- Step 1 ---');
   print('Step 1: Seed = $seed');
   print('Step 1: t = $t, u = $u');
 }
 
+// Step 2
 void step2() {
+  print('--- Step 2 ---');
+
   Book book = mainBook();
   Magazine magazine = mainMagazine();
 
@@ -211,7 +231,10 @@ void step2() {
   print('Step 2: ${magazine.describe()}');
 }
 
+// Step 3
 void step3() {
+  print('--- Step 3 ---');
+
   Book book = mainBook();
   Magazine magazine = mainMagazine();
   Dvd dvd = mainDvd();
@@ -234,7 +257,10 @@ void step3() {
   print('Step 3: ${dvd.describe()}');
 }
 
+// Step 4
 void step4() {
+  print('--- Step 4 ---');
+
   Book book = mainBook();
 
   print('Step 4: available? ${book.isAvailable}');
@@ -248,7 +274,7 @@ void step4() {
   List<LibraryItem> items = [
     book,
     mainMagazine(),
-    mainDvd()
+    mainDvd(),
   ];
 
   for (LibraryItem item in items) {
@@ -257,11 +283,12 @@ void step4() {
       '${item is Borrowable}',
     );
   }
-
- 
 }
 
+// Step 5
 void step5() {
+  print('--- Step 5 ---');
+
   Book book = mainBook();
   int ok = 0;
 
@@ -277,30 +304,31 @@ void step5() {
   );
 
   print('Step 5: renew once more? ${book.renew(renewLimit)}');
-
   print('Step 5: dvd can renew too? ${mainDvd().renew(1)}');
-
 }
 
+// Step 6
 void step6() {
-  MemberType type = MemberType.values[seed % 3];
+  print('--- Step 6 ---');
 
+  MemberType type = MemberType.values[seed % 3];
   Book book = mainBook();
   int fee = book.lateFee(daysLate);
 
   print('Step 6: member type = ${type.name} (index ${type.index})');
   print('Step 6: max loans = ${type.maxLoans}');
+
   print(
     'Step 6: book fee $fee -> '
     '${type.applyDiscount(fee)} after discount',
   );
-
- 
 }
 
+// Step 7
 void step7() {
-  MemberType type = MemberType.values[seed % 3];
+  print('--- Step 7 ---');
 
+  MemberType type = MemberType.values[seed % 3];
   Book book = mainBook();
   int fee = book.lateFee(daysLate);
   int discountedFee = type.applyDiscount(fee);
@@ -315,19 +343,19 @@ void step7() {
   List<LibraryItem> shelf = [
     mainBook(),
     mainMagazine(),
-    mainDvd()
+    mainDvd(),
   ];
 
   print(
     'Step 7: shelf fee for $daysLate days = '
     '${shelf.totalLateFee(daysLate).rs}',
   );
-
-.
 }
 
-// Step 8.2: Test operators and equality
+// Step 8
 void step8() {
+  print('--- Step 8 ---');
+
   Book book = mainBook();
   Magazine magazine = mainMagazine();
 
@@ -342,11 +370,68 @@ void step8() {
     'Step 8: set size = '
     '${{f1, Fine(f1.amount), f2}.length}',
   );
-
- 
 }
 
+// Step 9.2: Create shelfSize items
+List<LibraryItem> buildShelf() {
+  List<LibraryItem> shelf = [];
+
+  for (int k = 0; k < shelfSize; k++) {
+    int i = (u + k) % 10;
+
+    if (k % 3 == 0) {
+      shelf.add(
+        Book(titles[i], yearOf(i), 100 + 3 * seed),
+      );
+    } else if (k % 3 == 1) {
+      shelf.add(
+        Magazine(titles[i], yearOf(i), 1 + (t + k) % 12),
+      );
+    } else {
+      shelf.add(
+        Dvd(titles[i], yearOf(i), 90 + seed % 40),
+      );
+    }
+  }
+
+  return shelf;
+}
+
+// Step 9
+void step9() {
+  print('--- Step 9 ---');
+
+  LibraryItem.created = 0;
+
+  buildShelf();
+  List<LibraryItem> shelf = buildShelf();
+
+  print('Step 9: items created = ${LibraryItem.created}');
+
+  int cappedFee =
+      LibraryItem.capFee(shelf.first.lateFee(daysBig));
+
+  print(
+    'Step 9: capped fee = $cappedFee (cap $feeCap)',
+  );
+
+  print(
+    'Step 9: const copies identical? '
+    '${identical(const Fine(10), const Fine(10))}',
+  );
+
+  print(
+    'Step 9: new copies identical? '
+    '${identical(Fine(10), Fine(10))}',
+  );
+
+
+}
+
+// Main: Steps 1 to 9 only
 void main() {
+  print('Seed: $seed (t=$t, u=$u)');
+
   step1();
   step2();
   step3();
@@ -355,4 +440,5 @@ void main() {
   step6();
   step7();
   step8();
+  step9();
 }
