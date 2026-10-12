@@ -1,5 +1,4 @@
 
-
 final String rollNo = '04072313001';
 
 final int seed = int.parse(rollNo.substring(rollNo.length - 2));
@@ -143,7 +142,7 @@ class Dvd extends LibraryItem with Renewable {
   int lateFee(int days) => days * feePerDay * 2;
 }
 
-
+// Step 8: Fine class with operator overloading
 class Fine {
   final int amount;
 
@@ -169,6 +168,29 @@ class Fine {
   String toString() => 'Fine($amount)';
 }
 
+// Step 10.1: Member class
+class Member {
+  final String name;
+  final MemberType type;
+
+  Member(this.name, this.type);
+
+  Fine feeFor(LibraryItem item, int days) {
+    // 1. Calculate the late fee
+    int fee = item.lateFee(days);
+
+    // 2. Cap the fee
+    fee = LibraryItem.capFee(fee);
+
+    // 3. Apply member discount
+    fee = type.applyDiscount(fee);
+
+    // 4. Return a Fine object
+    return Fine(fee);
+  }
+}
+
+// Helper functions
 Book mainBook() {
   return Book(titles[u], yearOf(u), 100 + 3 * seed);
 }
@@ -425,10 +447,48 @@ void step9() {
     '${identical(Fine(10), Fine(10))}',
   );
 
-
 }
 
-// Main: Steps 1 to 9 only
+// Step 10.2: Capstone
+void step10() {
+  print('--- Step 10 ---');
+
+  List<LibraryItem> shelf = buildShelf();
+
+  Member member = Member(
+    'S$seed',
+    MemberType.values[seed % 3],
+  );
+
+  Fine totalFine = shelf.fold(
+    const Fine(0),
+    (sum, item) => sum + member.feeFor(item, daysLate),
+  );
+
+  int borrowableCount =
+      shelf.where((item) => item is Borrowable).length;
+
+  int renewableCount =
+      shelf.where((item) => item is Renewable).length;
+
+  print(
+    'Step 10: ${shelf.length} items, '
+    '$borrowableCount borrowable, '
+    '$renewableCount renewable',
+  );
+
+  print(
+    'Step 10: ${member.name} (${member.type.name}) '
+    'owes $totalFine',
+  );
+
+  print(
+    'Step 10: over the cap? '
+    '${totalFine > Fine(feeCap)}',
+  );
+}
+
+// Main
 void main() {
   print('Seed: $seed (t=$t, u=$u)');
 
@@ -441,4 +501,5 @@ void main() {
   step7();
   step8();
   step9();
+  step10();
 }
