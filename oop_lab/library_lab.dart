@@ -23,11 +23,10 @@ int yearOf(int i) => 1995 + 2 * i + t;
 final int feePerDay = 5 + t;
 final int daysLate = 3 + (t + u) % 6;
 
-// Step 5: Renewal settings
 final int renewLimit = 2 + u % 3;
 final int renewAttempts = 1 + seed % 5;
 
-// Step 6.1: Enhanced enum
+// Step 6: Enhanced enum
 enum MemberType {
   student(3, 50),
   faculty(10, 20),
@@ -147,6 +146,30 @@ Dvd mainDvd() {
   return Dvd(titles[i], yearOf(i), 90 + seed % 40);
 }
 
+// Step 7.1: Extension to format money
+extension MoneyText on int {
+  String get rs => 'Rs $this';
+}
+
+// Step 7.1: Extension to get initials from a String
+extension Initials on String {
+  String get initials {
+    return split(' ')
+        .map((w) => w[0])
+        .join();
+  }
+}
+
+// Step 7.1: Extension to calculate total shelf late fee
+extension ShelfMath on List<LibraryItem> {
+  int totalLateFee(int days) {
+    return fold(
+      0,
+      (sum, item) => sum + item.lateFee(days),
+    );
+  }
+}
+
 void step1() {
   print('Step 1: Seed = $seed');
   print('Step 1: t = $t, u = $u');
@@ -207,7 +230,6 @@ void step4() {
     );
   }
 
-
 }
 
 void step5() {
@@ -229,10 +251,9 @@ void step5() {
 
   print('Step 5: dvd can renew too? ${mainDvd().renew(1)}');
 
-  
+  // A mixin shares renewal code with Book and Dvd.
 }
 
-// Step 6.2: Test enhanced enum
 void step6() {
   MemberType type = MemberType.values[seed % 3];
 
@@ -249,6 +270,35 @@ void step6() {
  
 }
 
+// Step 7.2: Test extension methods
+void step7() {
+  MemberType type = MemberType.values[seed % 3];
+
+  Book book = mainBook();
+  int fee = book.lateFee(daysLate);
+  int discountedFee = type.applyDiscount(fee);
+
+  print('Step 7: ${discountedFee.rs}');
+
+  print(
+    'Step 7: initials of "${titles[u]}" = '
+    '${titles[u].initials}',
+  );
+
+  List<LibraryItem> shelf = [
+    mainBook(),
+    mainMagazine(),
+    mainDvd()
+  ];
+
+  print(
+    'Step 7: shelf fee for $daysLate days = '
+    '${shelf.totalLateFee(daysLate).rs}',
+  );
+
+  
+}
+
 void main() {
   step1();
   step2();
@@ -256,4 +306,5 @@ void main() {
   step4();
   step5();
   step6();
+  step7();
 }
