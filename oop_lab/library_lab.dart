@@ -42,7 +42,6 @@ enum MemberType {
   }
 }
 
-// Step 3: Abstract class
 abstract class LibraryItem {
   final String title;
   final int year;
@@ -128,6 +127,37 @@ class Dvd extends LibraryItem with Renewable {
   int lateFee(int days) => days * feePerDay * 2;
 }
 
+// Step 8.1: Fine class with operator overloading
+class Fine {
+  final int amount;
+
+  const Fine(this.amount);
+
+  // Add two fines
+  Fine operator +(Fine o) {
+    return Fine(amount + o.amount);
+  }
+
+  // Compare two fines
+  bool operator >(Fine o) {
+    return amount > o.amount;
+  }
+
+  // Two fines are equal if their amounts are equal
+  @override
+  bool operator ==(Object other) {
+    return other is Fine && other.amount == amount;
+  }
+
+  // Equal objects must have the same hashCode
+  @override
+  int get hashCode => amount.hashCode;
+
+  // Display the fine in the required format
+  @override
+  String toString() => 'Fine($amount)';
+}
+
 Book mainBook() {
   return Book(titles[u], yearOf(u), 100 + 3 * seed);
 }
@@ -146,12 +176,11 @@ Dvd mainDvd() {
   return Dvd(titles[i], yearOf(i), 90 + seed % 40);
 }
 
-// Step 7.1: Extension to format money
+// Step 7: Extension methods
 extension MoneyText on int {
   String get rs => 'Rs $this';
 }
 
-// Step 7.1: Extension to get initials from a String
 extension Initials on String {
   String get initials {
     return split(' ')
@@ -160,7 +189,6 @@ extension Initials on String {
   }
 }
 
-// Step 7.1: Extension to calculate total shelf late fee
 extension ShelfMath on List<LibraryItem> {
   int totalLateFee(int days) {
     return fold(
@@ -230,6 +258,7 @@ void step4() {
     );
   }
 
+ 
 }
 
 void step5() {
@@ -251,7 +280,6 @@ void step5() {
 
   print('Step 5: dvd can renew too? ${mainDvd().renew(1)}');
 
-  // A mixin shares renewal code with Book and Dvd.
 }
 
 void step6() {
@@ -270,7 +298,6 @@ void step6() {
  
 }
 
-// Step 7.2: Test extension methods
 void step7() {
   MemberType type = MemberType.values[seed % 3];
 
@@ -296,7 +323,27 @@ void step7() {
     '${shelf.totalLateFee(daysLate).rs}',
   );
 
-  
+.
+}
+
+// Step 8.2: Test operators and equality
+void step8() {
+  Book book = mainBook();
+  Magazine magazine = mainMagazine();
+
+  Fine f1 = Fine(book.lateFee(daysLate));
+  Fine f2 = Fine(magazine.lateFee(daysLate));
+
+  print('Step 8: $f1 + $f2 = ${f1 + f2}');
+  print('Step 8: first bigger? ${f1 > f2}');
+  print('Step 8: equal copies? ${f1 == Fine(f1.amount)}');
+
+  print(
+    'Step 8: set size = '
+    '${{f1, Fine(f1.amount), f2}.length}',
+  );
+
+ 
 }
 
 void main() {
@@ -307,4 +354,5 @@ void main() {
   step5();
   step6();
   step7();
+  step8();
 }
