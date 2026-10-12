@@ -1,0 +1,45 @@
+Seed: 1 (t=0, u=1)
+--- Step 1 ---
+Step 1: Seed = 1
+Step 1: t = 0, u = 1
+--- Step 2 ---
+Step 2: Flutter In Action (1997), 103 pages
+Step 2: Data Structures (1999), issue 2
+--- Step 3 ---
+Step 3: Book late fee for 4 days = 20
+Step 3: Magazine late fee for 4 days = 8
+Step 3: Dvd late fee for 4 days = 40
+Step 3: Operating Systems (2001), 91 min
+--- Step 4 ---
+Step 4: available? true
+Step 4: after borrow? false
+Step 4: after return? true
+Step 4: Book borrowable? true
+Step 4: Magazine borrowable? false
+Step 4: Dvd borrowable? false
+--- Step 5 ---
+Step 5: renewed 1 of 3 attempts (limit 1)
+Step 5: renew once more? false
+Step 5: dvd can renew too? true
+--- Step 6 ---
+Step 6: member type = faculty (index 1)
+Step 6: max loans = 10
+Step 6: book fee 20 -> 16 after discount
+--- Step 7 ---
+Step 7: Rs 16
+Step 7: initials of "Flutter In Action" = FIA
+Step 7: shelf fee for 4 days = Rs 68
+--- Step 8 ---
+Step 8: Fine(20) + Fine(8) = Fine(28)
+Step 8: first bigger? true
+Step 8: equal copies? true
+Step 8: set size = 2
+--- Step 9 ---
+Step 9: items created = 8
+Step 9: capped fee = 55 (cap 150)
+Step 9: const copies identical? true
+Step 9: new copies identical? false
+--- Step 10 ---
+Step 10: 4 items, 2 borrowable, 3 renewable
+Step 10: S1 (faculty) owes Fine(71)
+Step 10: over the cap? false
