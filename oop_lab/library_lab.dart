@@ -23,7 +23,7 @@ int yearOf(int i) => 1995 + 2 * i + t;
 final int feePerDay = 5 + t;
 final int daysLate = 3 + (t + u) % 6;
 
-// Step 3: LibraryItem is now an abstract class.
+
 abstract class LibraryItem {
   final String title;
   final int year;
@@ -32,13 +32,20 @@ abstract class LibraryItem {
 
   String describe() => '$title ($year)';
 
-  // Think: An abstract class cannot be instantiated directly
-  // because it can contain methods without implementations.
   int lateFee(int days);
 }
 
-class Book extends LibraryItem {
+// Step 4.1: Borrowable contract
+abstract class Borrowable {
+  bool get isAvailable;
+  void borrow();
+  void giveBack();
+}
+
+// Step 3 and Step 4.2:
+class Book extends LibraryItem implements Borrowable {
   final int pages;
+  bool _out = false;
 
   Book(super.title, super.year, this.pages);
 
@@ -47,7 +54,21 @@ class Book extends LibraryItem {
 
   @override
   int lateFee(int days) => days * feePerDay;
+
+  @override
+  bool get isAvailable => !_out;
+
+  @override
+  void borrow() {
+    _out = true;
+  }
+
+  @override
+  void giveBack() {
+    _out = false;
+  }
 }
+
 
 class Magazine extends LibraryItem {
   final int issue;
@@ -61,7 +82,7 @@ class Magazine extends LibraryItem {
   int lateFee(int days) => days * (feePerDay ~/ 2);
 }
 
-// Step 3.2: New Dvd subclass.
+
 class Dvd extends LibraryItem {
   final int minutes;
 
@@ -87,7 +108,6 @@ Magazine mainMagazine() {
   );
 }
 
-// Step 3.2: Create the main DVD.
 Dvd mainDvd() {
   int i = (u + 2) % 10;
   return Dvd(titles[i], yearOf(i), 90 + seed % 40);
@@ -129,8 +149,37 @@ void step3() {
   print('Step 3: ${dvd.describe()}');
 }
 
+// Step 4.3:
+void step4() {
+  Book book = mainBook();
+
+  print('Step 4: available? ${book.isAvailable}');
+
+  book.borrow();
+  print('Step 4: after borrow? ${book.isAvailable}');
+
+  book.giveBack();
+  print('Step 4: after return? ${book.isAvailable}');
+
+  List<LibraryItem> items = [
+    book,
+    mainMagazine(),
+    mainDvd()
+  ];
+
+  for (LibraryItem item in items) {
+    print(
+      'Step 4: ${item.runtimeType} borrowable? '
+      '${item is Borrowable}',
+    );
+  }
+
+  
+}
+
 void main() {
   step1();
   step2();
   step3();
+  step4();
 }
