@@ -34,7 +34,6 @@ final List<String> lifecycleLog = <String>[];
 
 void main() => runApp(const LabApp());
 
-// Stateless: the app configuration does not change.
 class LabApp extends StatelessWidget {
   const LabApp({super.key});
 
@@ -47,7 +46,6 @@ class LabApp extends StatelessWidget {
   }
 }
 
-// Stateless: this step displays a fixed greeting.
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -57,14 +55,60 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Study Tracker: $course'),
       ),
-      body: const Center(
-        child: Text('Hello'),
+      body: StudentCard(
+        name: studentName,
+        roll: rollNo,
+        course: course,
       ),
     );
   }
 }
 
-// Stateful: this widget will be used to practise setState.
+// Step 2: Reusable student information card.
+class StudentCard extends StatelessWidget {
+  final String name;
+  final String roll;
+  final String course;
+
+  const StudentCard({
+    super.key,
+    required this.name,
+    required this.roll,
+    required this.course,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Name: $name',
+              key: const Key('student-name'),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Roll no: $roll',
+              key: const Key('student-roll'),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Course: $course',
+              key: const Key('student-course'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Retained from the starter code for a later step.
 class BuggyCounter extends StatefulWidget {
   const BuggyCounter({super.key});
 
@@ -79,7 +123,10 @@ class _BuggyCounterState extends State<BuggyCounter> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('Bug clicks: $_clicks', key: const Key('bug-text')),
+        Text(
+          'Bug clicks: $_clicks',
+          key: const Key('bug-text'),
+        ),
         const SizedBox(width: 12),
         ElevatedButton(
           key: const Key('bug-button'),
