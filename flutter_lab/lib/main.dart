@@ -39,6 +39,7 @@ class LabApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // runApp receives LabApp; MaterialApp receives HomePage as home.
     return const MaterialApp(
       title: 'Study Tracker',
       home: HomePage(),
@@ -52,7 +53,9 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Study Tracker: $course')),
+      appBar: AppBar(
+        title: Text('Study Tracker: $course'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -65,12 +68,20 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Start: $startCount', key: const Key('info-start')),
-                const SizedBox(width: 12),
-                Text('Step: $stepSize', key: const Key('info-step')),
-                const SizedBox(width: 12),
-                Text('Max: $maxCount', key: const Key('info-max')),
+                Text(
+                  'Start: $startCount',
+                  key: const Key('info-start'),
+                ),
+                Text(
+                  'Step: $stepSize',
+                  key: const Key('info-step'),
+                ),
+                Text(
+                  'Max: $maxCount',
+                  key: const Key('info-max'),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -96,13 +107,27 @@ class StudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Name: $name', key: const Key('student-name')),
-        Text('Roll no: $roll', key: const Key('student-roll')),
-        Text('Course: $course', key: const Key('student-course')),
-      ],
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Name: $name',
+              key: const Key('student-name'),
+            ),
+            Text(
+              'Roll no: $roll',
+              key: const Key('student-roll'),
+            ),
+            Text(
+              'Course: $course',
+              key: const Key('student-course'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -121,9 +146,7 @@ class GoalBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final percent = count * 100 ~/ max;
 
-    // GoalBanner does not need setState because count and max are input values.
-    // To show a new count, its parent must pass updated values.
-
+    // This widget displays the values provided by its parent.
     return Text(
       'Progress: $count of $max ($percent%)',
       key: const Key('progress'),
@@ -141,12 +164,32 @@ class Tally extends StatefulWidget {
 class _TallyState extends State<Tally> {
   int _count = startCount;
 
-  // Tally has no changing configuration fields, but its State object
-  // stores changing data. Flutter keeps the State when the widget rebuilds.
+  // The widget is the configuration; State stores changing data.
+  // Hot reload normally preserves State, while hot restart recreates it.
 
   void _plus() {
     setState(() {
       _count += stepSize;
+
+      if (_count > maxCount) {
+        _count = maxCount;
+      }
+    });
+  }
+
+  void _minus() {
+    setState(() {
+      _count -= stepSize;
+
+      if (_count < 0) {
+        _count = 0;
+      }
+    });
+  }
+
+  void _reset() {
+    setState(() {
+      _count = startCount;
     });
   }
 
@@ -155,7 +198,10 @@ class _TallyState extends State<Tally> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Count: $_count', key: const Key('count')),
+        Text(
+          'Count: $_count',
+          key: const Key('count'),
+        ),
         GoalBanner(count: _count, max: maxCount),
         Row(
           children: [
@@ -164,6 +210,18 @@ class _TallyState extends State<Tally> {
               onPressed: _plus,
               child: Text('+$stepSize'),
             ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              key: const Key('minus'),
+              onPressed: _minus,
+              child: Text('-$stepSize'),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton(
+              key: const Key('reset'),
+              onPressed: _reset,
+              child: const Text('Reset'),
+            ),
           ],
         ),
       ],
@@ -171,7 +229,7 @@ class _TallyState extends State<Tally> {
   }
 }
 
-// Kept from the starter code for later lab steps.
+// Retained from the starter code for Step 7.
 class BuggyCounter extends StatefulWidget {
   const BuggyCounter({super.key});
 
@@ -186,7 +244,10 @@ class _BuggyCounterState extends State<BuggyCounter> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('Bug clicks: $_clicks', key: const Key('bug-text')),
+        Text(
+          'Bug clicks: $_clicks',
+          key: const Key('bug-text'),
+        ),
         const SizedBox(width: 12),
         ElevatedButton(
           key: const Key('bug-button'),
