@@ -39,7 +39,6 @@ class LabApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // runApp receives LabApp; MaterialApp's home receives HomePage.
     return const MaterialApp(
       title: 'Study Tracker',
       home: HomePage(),
@@ -84,6 +83,11 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            GoalBanner(
+              count: startCount,
+              max: maxCount,
+            ),
           ],
         ),
       ),
@@ -96,7 +100,6 @@ class StudentCard extends StatelessWidget {
   final String roll;
   final String course;
 
-  // Fields are final because a StatelessWidget's data should not change.
   const StudentCard({
     super.key,
     required this.name,
@@ -131,7 +134,32 @@ class StudentCard extends StatelessWidget {
   }
 }
 
-// This widget will be used in later steps.
+// Step 4: Stateless banner that displays goal progress.
+class GoalBanner extends StatelessWidget {
+  final int count;
+  final int max;
+
+  const GoalBanner({
+    super.key,
+    required this.count,
+    required this.max,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Integer division rounds the percentage down.
+    final percent = count * 100 ~/ max;
+
+    // GoalBanner does not need setState because its fields are input data.
+    // To show a new count, pass a new count from a parent that manages state.
+    return Text(
+      'Progress: $count of $max ($percent%)',
+      key: const Key('progress'),
+    );
+  }
+}
+
+// Retained from the starter code for a later step.
 class BuggyCounter extends StatefulWidget {
   const BuggyCounter({super.key});
 
@@ -146,7 +174,10 @@ class _BuggyCounterState extends State<BuggyCounter> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('Bug clicks: $_clicks', key: const Key('bug-text')),
+        Text(
+          'Bug clicks: $_clicks',
+          key: const Key('bug-text'),
+        ),
         const SizedBox(width: 12),
         ElevatedButton(
           key: const Key('bug-button'),
