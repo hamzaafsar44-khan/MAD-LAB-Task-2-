@@ -52,9 +52,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Study Tracker: $course'),
-      ),
+      appBar: AppBar(title: Text('Study Tracker: $course')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -67,27 +65,16 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Start: $startCount',
-                  key: const Key('info-start'),
-                ),
-                Text(
-                  'Step: $stepSize',
-                  key: const Key('info-step'),
-                ),
-                Text(
-                  'Max: $maxCount',
-                  key: const Key('info-max'),
-                ),
+                Text('Start: $startCount', key: const Key('info-start')),
+                const SizedBox(width: 12),
+                Text('Step: $stepSize', key: const Key('info-step')),
+                const SizedBox(width: 12),
+                Text('Max: $maxCount', key: const Key('info-max')),
               ],
             ),
             const SizedBox(height: 12),
-            GoalBanner(
-              count: startCount,
-              max: maxCount,
-            ),
+            const Tally(),
           ],
         ),
       ),
@@ -109,32 +96,17 @@ class StudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Name: $name',
-              key: const Key('student-name'),
-            ),
-            Text(
-              'Roll no: $roll',
-              key: const Key('student-roll'),
-            ),
-            Text(
-              'Course: $course',
-              key: const Key('student-course'),
-            ),
-          ],
-        ),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Name: $name', key: const Key('student-name')),
+        Text('Roll no: $roll', key: const Key('student-roll')),
+        Text('Course: $course', key: const Key('student-course')),
+      ],
     );
   }
 }
 
-// Step 4: Stateless banner that displays goal progress.
 class GoalBanner extends StatelessWidget {
   final int count;
   final int max;
@@ -147,11 +119,11 @@ class GoalBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Integer division rounds the percentage down.
     final percent = count * 100 ~/ max;
 
-    // GoalBanner does not need setState because its fields are input data.
-    // To show a new count, pass a new count from a parent that manages state.
+    // GoalBanner does not need setState because count and max are input values.
+    // To show a new count, its parent must pass updated values.
+
     return Text(
       'Progress: $count of $max ($percent%)',
       key: const Key('progress'),
@@ -159,7 +131,47 @@ class GoalBanner extends StatelessWidget {
   }
 }
 
-// Retained from the starter code for a later step.
+class Tally extends StatefulWidget {
+  const Tally({super.key});
+
+  @override
+  State<Tally> createState() => _TallyState();
+}
+
+class _TallyState extends State<Tally> {
+  int _count = startCount;
+
+  // Tally has no changing configuration fields, but its State object
+  // stores changing data. Flutter keeps the State when the widget rebuilds.
+
+  void _plus() {
+    setState(() {
+      _count += stepSize;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Count: $_count', key: const Key('count')),
+        GoalBanner(count: _count, max: maxCount),
+        Row(
+          children: [
+            ElevatedButton(
+              key: const Key('plus'),
+              onPressed: _plus,
+              child: Text('+$stepSize'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// Kept from the starter code for later lab steps.
 class BuggyCounter extends StatefulWidget {
   const BuggyCounter({super.key});
 
@@ -174,10 +186,7 @@ class _BuggyCounterState extends State<BuggyCounter> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          'Bug clicks: $_clicks',
-          key: const Key('bug-text'),
-        ),
+        Text('Bug clicks: $_clicks', key: const Key('bug-text')),
         const SizedBox(width: 12),
         ElevatedButton(
           key: const Key('bug-button'),
