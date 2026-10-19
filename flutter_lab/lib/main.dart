@@ -134,7 +134,6 @@ class GoalBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final percent = count * 100 ~/ max;
-
     return Text(
       'Progress: $count of $max ($percent%)',
       key: const Key('progress'),
@@ -155,18 +154,14 @@ class _TallyState extends State<Tally> {
   void _plus() {
     setState(() {
       _count += stepSize;
-      if (_count > maxCount) {
-        _count = maxCount;
-      }
+      if (_count > maxCount) _count = maxCount;
     });
   }
 
   void _minus() {
     setState(() {
       _count -= stepSize;
-      if (_count < 0) {
-        _count = 0;
-      }
+      if (_count < 0) _count = 0;
     });
   }
 
@@ -209,7 +204,6 @@ class _TallyState extends State<Tally> {
   }
 }
 
-// Step 8: Countdown with a periodic timer.
 class Countdown extends StatefulWidget {
   const Countdown({super.key});
 
@@ -220,21 +214,19 @@ class Countdown extends StatefulWidget {
 class _CountdownState extends State<Countdown> {
   late int _left;
   late Timer _timer;
+  int _builds = 0;
 
   @override
   void initState() {
     super.initState();
+
+    lifecycleLog.add('initState');
 
     _left = startSeconds;
 
     _timer = Timer.periodic(
       const Duration(seconds: 1),
       (timer) {
-        if (!mounted) {
-          timer.cancel();
-          return;
-        }
-
         if (_left > 0) {
           setState(() {
             _left--;
@@ -250,29 +242,41 @@ class _CountdownState extends State<Countdown> {
 
   @override
   void dispose() {
-    // Always cancel the timer before disposing of this State.
     _timer.cancel();
+    lifecycleLog.add('dispose');
+
+    // To verify disposal, print lifecycleLog in the console from dispose:
+    // debugPrint('$lifecycleLog');
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_left > 0) {
-      return Text(
-        'Time left: $_left s',
-        key: const Key('time-left'),
-      );
-    }
+    _builds++;
 
-    return const Text(
-      'Time is up!',
-      key: Key('time-left'),
+    // One setState per timer tick triggers one rebuild of Countdown.
+    // Print lifecycleLog in dispose (before super.dispose()) to verify it.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_left > 0)
+          Text(
+            'Time left: $_left s',
+            key: const Key('time-left'),
+          )
+        else
+          const Text(
+            'Time is up!',
+            key: Key('time-left'),
+          ),
+        Text(
+          'Builds: $_builds',
+          key: const Key('builds'),
+        ),
+      ],
     );
   }
-
-  // If dispose does not cancel the timer, it may call setState() after
-  // the State is disposed, causing a "setState() called after dispose()"
-  // error. Cancelling the timer prevents this.
 }
 
 class BuggyCounter extends StatefulWidget {
